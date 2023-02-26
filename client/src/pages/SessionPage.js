@@ -5,7 +5,7 @@ import Test from '../components/Test/Test';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-const Sessions = () => {
+const SessionsPage = () => {
   return (
     root.render(
       <React.StrictMode>
@@ -15,7 +15,7 @@ const Sessions = () => {
   )
 }
 
-export default Sessions;
+export default SessionsPage;
 
 // ============================================================================
 // EXTRA

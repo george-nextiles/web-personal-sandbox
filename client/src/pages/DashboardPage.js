@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import Loading from '../components/Loading/Loading';
+import Test from '../components/Test/Test';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -9,7 +9,7 @@ const Dashboard = () => {
   return (
     root.render(
       <React.StrictMode>
-        <Loading />
+        <Test />
       </React.StrictMode>
     )
   )

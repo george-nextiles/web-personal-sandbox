@@ -11,18 +11,19 @@ import {
 } from "react-router-dom";
 
 // import pages
-import Dashboard from "./pages/dashboard";
-import Athletes from "./pages/athletes";
-import Sessions from "./pages/sessions";
-import Profile from "./pages/profile";
+import Loading from "./pages/LoadingPage";
+import Dashboard from "./pages/DashboardPage";
+import Athletes from "./pages/AthletePage";
+import Sessions from "./pages/SessionPage";
+import Profile from "./pages/ProfilePage";
   
 function Home() {
   return (
     <>
-    {/* <Loading/> */}
+    <Loading/>
       <Router>
         <Routes>
-          <Route exact path="/" element={< Dashboard />}/>
+          <Route exact path="/" element={< Loading />}/>
           <Route exact path="/dashboard" element={< Dashboard />}/>
           <Route path="/athletes" element={<Athletes/>} />
           <Route path="/sessions" element={<Sessions/>} />
