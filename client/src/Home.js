@@ -1,25 +1,28 @@
 // import "./App.css";
 // importing components from react-router-dom package
+import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Outlet,
+  Link,
   // Navigate,
 } from "react-router-dom";
-  
-// import Home component
+
+// import pages
 import Dashboard from "./pages/dashboard";
 import Athletes from "./pages/athletes";
 import Sessions from "./pages/sessions";
 import Profile from "./pages/profile";
   
-function App() {
+function Home() {
   return (
     <>
-      {/* This is the alias of BrowserRouter i.e. Router */}
+    {/* <Loading/> */}
       <Router>
         <Routes>
-          <Route exact path="/" element={<Athletes/>} />
+          <Route exact path="/" element={< Dashboard />}/>
           <Route exact path="/dashboard" element={< Dashboard />}/>
           <Route path="/athletes" element={<Athletes/>} />
           <Route path="/sessions" element={<Sessions/>} />
@@ -30,4 +33,4 @@ function App() {
   );
 }
   
-export default App;
+export default Home;
