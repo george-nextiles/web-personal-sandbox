@@ -1,0 +1,50 @@
+*,
+*::after,
+*::before {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+   
+}
+
+
+html {
+   height: 100%;
+   font-size: 62.5%; // 1rem is 10px; 10px/16px = 62.5;
+   background-image: url('../img/slide-1-black.png');
+   // background-color: '<%=backgroundcolor%>';
+   background-size: cover;
+   background-repeat: no-repeat;
+   opacity: .9;
+  
+   @include respond(tab-land){
+      font-size: 56.25%; //1rem = 9px, 9/16 = 56.25%
+      
+   }
+
+   @include respond(tab-port){
+      font-size: 50%;  //1rem = 8px, 8/16 = 50%
+   }
+  
+   @include respond(big-desktop){
+      font-size: 75%;  //1rem - 12px; 12/16 = 75%
+   }
+} 
+
+body {
+   box-sizing: border-box;
+
+   @include respond(tab-port){
+      padding: 0;  //1rem = 8px, 8/16 = 50%
+   }
+}
+
+
+button {
+      text-decoration: 1px solid black underline;
+      text-underline-offset: .5rem;
+      border: none;
+      background-color: #e4e4e4;
+      cursor: pointer;
+      word-break: break-all;
+}

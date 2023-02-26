@@ -1,0 +1,365 @@
+{% layout "layout.liquid" %}
+{% block content %}
+
+{% comment  %} 
+<div class="form-content" style="background-color:white">
+    <div class="form-group">
+      <input type="text" name="org" id="org" class=""/>
+      </div>
+    <div class="form-group">
+        <input type="text" name="athlete" id="athlete" class=""/>
+        </div>
+        <div class="form-group">
+        <input type="text" name="start_range" id="start_range" class=""/>
+        </div>
+        <div class="form-group">
+        <input type="text" name="end_range" id="end_range" class=""/>
+        </div>
+        <div class="form-group">
+        <input type="submit" id="submit"/>
+        </div>
+    </div>
+  {% endcomment %}
+  
+<script src="https://d3js.org/d3.v4.js"></script>
+<div style="display: flex; justify-content: space-evenly; background-color: white;">
+    <div
+      style="background-color: white;"
+      class="svg"
+      id="brush"
+      style="padding: 100px; width: 50%;"></div>
+      <div id="datagraph"></div>
+</div>
+
+  <div class="demo-content align-center line-drawing-demo">
+    <svg viewBox="0 0 280 100" style="color: #8453E3; height: 400px; width: 500px;">
+      <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-width="1" class="lines">
+        <path class="el" d="M58 80V50.12C57.7 41.6 51.14 35 43 35a15 15 0 0 0 0 30h7.5v15H43a30 30 0 1 1 0-60c16.42 0 29.5 13.23 30 29.89V80H58z" style="stroke-dashoffset: 0px;" stroke-dasharray="316.85528564453125"></path>
+        <path class="el" d="M73 80V20H58v60h15z" style="stroke-dashoffset: 0px;" stroke-dasharray="150"></path>
+        <path class="el" d="M58 80V49.77C58.5 33.23 71.58 20 88 20a30 30 0 0 1 30 30v30h-15V50a15 15 0 0 0-15-15c-8.14 0-14.7 6.6-15 15.12V80H58zm75 0V20h-15v60h15z" style="stroke-dashoffset: 0px;" stroke-dasharray="441.1739501953125"></path>
+        <path class="el" d="M118 80V49.77C118.5 33.23 131.58 20 148 20a30 30 0 0 1 30 30v30h-15V50a15 15 0 0 0-15-15c-8.14 0-14.7 6.6-15 15.12V80h-15zm-7.5-60a7.5 7.5 0 1 1-7.48 8v-1c.25-3.9 3.5-7 7.48-7z" style="stroke-dashoffset: 0px;" stroke-dasharray="338.3053894042969"></path>
+        <path class="el" d="M133 65a15 15 0 0 1-15-15v-7.5h-15V50a30 30 0 0 0 30 30V65zm30 15V49.77C163.5 33.23 176.58 20 193 20a30 30 0 0 1 30 30v30h-15V50a15 15 0 0 0-15-15c-8.14 0-14.7 6.6-15 15.12V80h-15z" style="stroke-dashoffset: 0px;" stroke-dasharray="406.8699035644531"></path>
+        <path class="el" d="M238 65a15 15 0 0 1 0-30c8.1 0 14.63 6.53 15 15h-15v15h30V49.89C267.5 33.23 254.42 20 238 20a30 30 0 0 0 0 60V65z" style="stroke-dashoffset: 1.47355px;" stroke-dasharray="301.8561706542969"></path>
+        <path class="el" d="M260.48 65a7.5 7.5 0 1 1-7.48 8v-1c.26-3.9 3.5-7 7.48-7z" style="stroke-dashoffset: 4.99867px;" stroke-dasharray="47.128875732421875"></path>
+      </g>
+    </svg>
+  </div>
+
+  
+
+
+
+<script>
+  //Anime
+  anime({
+    targets: '.line-drawing-demo .lines path',
+    strokeDashoffset: [anime.setDashoffset, 0],
+    easing: 'easeInOutSine',
+    duration: 1500,
+    delay: function(el, i) { return i * 250 },
+    direction: 'alternate',
+    loop: true
+  });
+</script>
+
+
+
+
+<script>
+  // Streamgraph
+var margin = {top: 20, right: 30, bottom: 30, left: 60},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+
+var svg = d3.select("#datagraph")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv", function(data) {
+
+  
+  var keys = data.columns.slice(1)
+
+
+  var x = d3.scaleLinear()
+    .domain(d3.extent(data, function(d) { return d.year; }))
+    .range([ 0, width ]);
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).ticks(5));
+
+
+  var y = d3.scaleLinear()
+    .domain([-100000, 100000])
+    .range([ height, 0 ]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+
+  var color = d3.scaleOrdinal()
+    .domain(keys)
+    .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf'])
+
+
+  var stackedData = d3.stack()
+    .offset(d3.stackOffsetSilhouette)
+    .keys(keys)
+    (data)
+
+
+  svg
+    .selectAll("mylayers")
+    .data(stackedData)
+    .enter()
+    .append("path")
+      .style("fill", function(d) { return color(d.key); })
+      .attr("d", d3.area()
+        .x(function(d, i) { return x(d.data.year); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); })
+    )
+
+})
+</script>
+
+
+
+
+
+<script>
+// Brush Technique
+var margin = {top: 10, right: 30, bottom: 30, left: 60},
+    width = 460 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+
+var Svg = d3.select("#brush")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/iris.csv", function(data) {
+
+
+  var x = d3.scaleLinear()
+    .domain([4, 8])
+    .range([ 0, width ]);
+  var xAxis = Svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+
+  var y = d3.scaleLinear()
+    .domain([0, 9])
+    .range([ height, 0]);
+  Svg.append("g")
+    .call(d3.axisLeft(y));
+
+
+  var clip = Svg.append("defs").append("svg:clipPath")
+      .attr("id", "clip")
+      .append("svg:rect")
+      .attr("width", width )
+      .attr("height", height )
+      .attr("x", 0)
+      .attr("y", 0);
+
+
+  var color = d3.scaleOrdinal()
+    .domain(["setosa", "versicolor", "virginica" ])
+    .range([ "#440154ff", "#21908dff", "#fde725ff"])
+
+
+  var brush = d3.brushX()      
+      .extent( [ [0,0], [width,height] ] ) 
+      .on("end", updateChart) 
+
+
+  var scatter = Svg.append('g')
+    .attr("clip-path", "url(#clip)")
+
+  
+  scatter
+    .selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x(d.Sepal_Length); } )
+      .attr("cy", function (d) { return y(d.Petal_Length); } )
+      .attr("r", 8)
+      .style("fill", function (d) { return color(d.Species) } )
+      .style("opacity", 0.5)
+
+
+  scatter
+    .append("g")
+      .attr("class", "brush")
+      .call(brush);
+
+ 
+  var idleTimeout
+  function idled() { idleTimeout = null; }
+
+
+  function updateChart() {
+
+    extent = d3.event.selection
+
+  
+    if(!extent){
+      if (!idleTimeout) return idleTimeout = setTimeout(idled, 350); 
+      x.domain([ 4,8])
+    }else{
+      x.domain([ x.invert(extent[0]), x.invert(extent[1]) ])
+      scatter.select(".brush").call(brush.move, null) 
+    }
+
+
+    xAxis.transition().duration(1000).call(d3.axisBottom(x))
+    scatter
+      .selectAll("circle")
+      .transition().duration(1000)
+      .attr("cx", function (d) { return x(d.Sepal_Length); } )
+      .attr("cy", function (d) { return y(d.Petal_Length); } )
+
+    }
+})
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+  {%  comment  %} 
+  <script>
+  document.getElementById("submit").addEventListener("click", () => {
+    const org = document.getElementById("org").value
+  const athlete = document.getElementById("athlete").value
+  const start_range = document.getElementById("start_range").value
+  const end_range = document.getElementById("end_range").value
+
+     async function fetchSessionData() {
+         const response = await fetch(`analyzedsession/${athlete}/${start_range}/${end_range}`);
+         const json = await response.json();
+         return json;
+     }
+
+     fetchSessionData().then(json => {
+       console.log(json)
+       let csv = json.csv_data
+       const data = d3.csvParse(csv);
+       console.log(data)
+     })
+   })  
+
+
+   var ax_data = [
+    [ ],
+    [ ],
+    [ ],
+    [],
+    []
+  ];
+
+    var svg = d3.select("svg"),
+      margin = 300,
+      width = svg.attr("width") - margin, // 300
+      height = svg.attr("height") - margin
+
+
+    var xScale = d3.scaleLinear().domain([0, 2]).range([0, width]),
+      yScale = d3.scaleLinear().domain([0, 50]).range([height, 0]);
+
+    var g = svg.append("g").attr("transform", "translate(" + 100 + "," + 100 + ")");
+
+    svg
+      .append('text')
+      .attr('x', width / 2 + 100)
+      .attr('y', 100)
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'Helvetica')
+      .style('font-size', 20)
+      .text('Line Chart');
+
+
+    svg
+      .append('text')
+      .attr('x', width / 2 + 100)
+      .attr('y', height - 15 + 150)
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'Helvetica')
+      .style('font-size', 12)
+      .text('Date');
+
+
+    svg
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('transform', 'translate(60,' + height + ')rotate(-90)')
+      .style('font-family', 'Helvetica')
+      .style('font-size', 12)
+      .text('Value');
+
+
+    g.append("g").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(xScale));
+
+    g.append("g").call(d3.axisLeft(yScale));
+
+
+    svg
+      .append('g')
+      .selectAll("dot")
+      .data(ax_data)
+      .enter()
+      .append("circle")
+      .attr("cx", function(d) {
+        return xScale(d[0]);
+      })
+      .attr("cy", function(d) {
+        return yScale(d[1]);
+      })
+      .attr("r", 3)
+      .attr("transform", "translate(" + 100 + "," + 100 + ")")
+      .style("fill", "#CC0000");
+
+
+    var line = d3
+      .line()
+      .x(function(d) {
+        return xScale(d[0]);
+      })
+      .y(function(d) {
+        return yScale(d[1]);
+      })
+      .curve(d3.curveMonotoneX)
+
+    svg
+    .append("path")
+    .datum(ax_data)
+    .attr("class", "line")
+    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+    .attr("d", line)
+    .style("fill", "none")
+    .style("stroke", "#CC0000")
+    .style("stroke-width", "2");
+  </script>
+{% endcomment %} 
+
+{% endblock %}

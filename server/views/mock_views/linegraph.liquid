@@ -1,0 +1,158 @@
+{% layout "layout.liquid" %}
+{% block content %}
+<div id="linegraph" class="svg-container"></div>
+<style>
+    #linegraph {
+        background-color: white;
+    }
+
+    .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        vertical-align: top;
+        overflow: hidden;
+    }
+
+    .svg-content {
+        display: inline-block;
+        position: absolute;
+        top: 0;
+        left: 5rem;
+        width: 70%;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-axis.v1.min.js"></script>
+
+<script>
+    async function fetchCSV() {
+        const athlete = 'Basdeo05'
+        const org = 'Nextiles'
+        const start_range = "2022120900000"
+        const end_range = "2022121000000"
+        const response = await fetch(`/analyzedsession/${athlete}/${org}/${start_range}/${end_range}`);
+        const json = await response.json();
+        return json;
+    }
+
+    let data = []
+
+    let dim = {
+        "width": 600,
+        "height": 600,
+        "margin": 50
+    };
+
+    let svg = d3
+        .select("#linegraph")
+        .append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 600 9000")
+        .classed("svg-content", true);
+
+    function convertToArray(sample) {
+        sample.forEach(element => {
+            data.push({
+                counter: (element[0]),
+                value: (element[1])
+            })
+        })
+        draw(data)
+    }
+
+
+
+    function draw(data) {
+
+        let maxneg = []
+        data.forEach(x => {
+            if (x.value < 0) {
+                maxneg.push(Math.abs(x.value))
+            }
+        })
+
+
+
+        let posnum = []
+        data
+            .forEach(x => {
+                if (x.value > 0) {
+                    posnum.push(parseInt(x.value))
+                }
+            })
+
+        svg
+            .append("text")
+            .attr("x", dim.width / 2 - 15)
+            .attr("y", dim.height + dim.margin / 3)
+            .style("text-anchor", "middle")
+            .text("Acceleration Graph");
+
+        let scaleX = d3.scaleLinear()
+            .domain(d3.extent(data, function (d) { return d.counter; }))
+            .range([dim.margin, dim.width - dim.margin])
+
+        let axisX = d3
+            .axisBottom(scaleX)
+
+        svg
+            .append("g")
+            .attr("transform", `translate(0, ${dim.height - dim.margin})`)
+            .call(axisX)
+
+
+
+        let scaleY = d3.scaleLinear().domain([
+            -(d3.max(maxneg)),
+            d3.max(posnum)
+        ]).range([
+            dim.height - dim.margin,
+            dim.margin
+        ])
+
+        let axisY = d3
+            .axisLeft(scaleY)
+
+        svg
+            .append("g")
+            .attr("transform", `translate(${dim.margin}, 0)`)
+            .call(axisY)
+
+        let line = d3
+            .line()
+            .x(d => scaleX(d.counter))
+            .y(d => scaleY(d.value))
+
+        svg
+            .append("path")
+            .attr("fill", "none")
+            .attr("stroke", "#917EF5")
+            .attr("stroke-width", "1px")
+            .attr("d", line(data));
+    }
+
+
+    window.onload = fetchCSV().then(json => {
+        let csv = json.csv_data[0]
+        const alldata = d3.csvParse(csv);
+        let ax_vals = []
+        let i = 0
+        var ax_obj = alldata.filter(function (d) {
+            if (d.field === "ax") { // console.log(d.value)
+                ax_vals.push([i, d.value])
+                i++
+            }
+        });
+
+        convertToArray(ax_vals)
+
+
+    });
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,208 @@
+{% layout "layout.liquid" %}
+{% block content %}
+
+  <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; height: 40rem;">
+    <div style="background-color: white; border-radius: .4rem; height: 85%; width: 29%; margin: 2rem;">
+      <p style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">Pie Chart</p>
+      <div>
+        <div style="display: flex; justify-content: center; padding: 1rem;">
+          <div id="pie" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div style="background-color: white; border-radius: .4rem; height: 85%; width: 29%; margin: 2rem;">
+      <p style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">Donut Chart</p>
+      <div>
+        <div style="display: flex; justify-content: center; padding: 1rem;">
+          <div id="donut" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div style="background-color: white; border-radius: .4rem; height: 85%; width: 29%; margin: 2rem;">
+      <p style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">Radial Chart</p>
+      <div>
+        <div style="display: flex; justify-content: center; padding: 1rem;">
+            <div id="radial" aria-hidden="true">
+                <svg aria-hidden="true" width="160" height="160">
+                    <g>
+                        <circle cx="80" cy="80" r="70"  fill="none" style="stroke: #04CCCB; stroke-width: 10px;" data-index="0"></circle>
+                        <circle cx="80" cy="80" r="70" fill="none" stroke-dasharray="329.86722862692824 109.95574287564276" stroke-dashoffset="109.95574287564276" data-index="0"></circle>
+                    </g>
+                    <g>
+                        <circle cx="80" cy="80" r="56" fill="none" style="stroke:#F58451; stroke-width: 10px;" data-index="1"></circle>
+                        <circle cx="80" cy="80" r="56" fill="none" stroke-dasharray="190.0035236891107 161.85485351294614" stroke-dashoffset="87.96459430051421" data-index="1"></circle>
+                    </g>
+                    <g>
+                        <circle cx="80" cy="80" r="42" fill="none" style="stroke: #917EF5; stroke-width: 10px;" data-index="2"></circle>
+                        <circle cx="80" cy="80" r="42" fill="none" stroke-dasharray="108.19645098963248 155.69733191191014" stroke-dashoffset="65.97344572538566" data-index="2"></circle>
+                    </g>
+                    <g >
+                        <circle cx="80" cy="80" r="28"  fill="none" style="stroke: #F1B949; stroke-width: 10px;"data-index="3"></circle>
+                        <circle cx="80" cy="80" r="28" fill="none" stroke-dasharray="31.667253948185117 144.2619346528433" stroke-dashoffset="43.982297150257104" data-index="3"></circle>
+                    </g>
+                </svg>
+            <div style="display: flex; align-items: flex-start; padding-top: .5rem;">
+                <ul>
+                    <li style="font-size: 1.2rem; align-items: left; margin-left: 0;">
+                        Label <span style="color: #04CCCB">One</span>
+                    </li>
+                    <li style="font-size: 1.2rem; align-items: left;">
+                        Label <span style="color: #F58451">Two</span>
+                    </li>
+                    <li style="font-size: 1.2rem; align-items: left;">
+                        Label <span style="color: #917EF5">Three</span>
+                    </li>
+                    <li style="font-size: 1.2rem; align-items: left;">
+                        Label <span style="color: #F1B949">Four</span>
+                    </li>
+                </ul>
+             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: center;">
+    <div style="background-color: white; width: 95%; border-radius: .4rem; padding: 1.2rem;">
+      <p style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">Progress Bar</p>
+      <div style="margin: 1rem;">
+        <div style="display: flex; flex-direction: row; justify-content: space-evenly; align-items: center;" aria-hidden="true">
+          <div style="background-color: #F1B949; border-radius: .4rem 0 0 .4rem; width: 18%; height: 1.5rem;"></div>
+          <div style="background-color: rgb(252, 219, 144);  width: 44%; height: 1.5rem;"></div>
+          <div style="background-color: rgb(247, 153, 71);  width: 11%; height: 1.5rem;"></div>
+          <div style="background-color: rgb(232, 232, 185); border-radius: 0 .4rem .4rem 0; width: 24%; height: 1.5rem;"></div>
+        </div>
+        <ul style="margin: .5rem;">
+          <li>
+            <span aria-hidden="true"></span>
+            <span style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">
+              Baseball Pitch
+            </span>
+          </li>
+          <li>
+            <span aria-hidden="true"></span>
+            <span style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">
+              Jumps
+            </span>
+          </li>
+          <li>
+            <span aria-hidden="true"></span>
+            <span style="font-size: 1.4rem; align-items: left; padding: 1.2rem;">
+              Tennis Serve
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+  <script>
+
+
+    var width = 160
+    height = 160
+
+    var radius = Math.min(width, height) / 2
+
+
+    var svg = d3
+      .select("#pie")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var data = {
+      a: 30,
+      b: 20,
+      c: 30,
+      e: 12
+    }
+
+
+    var color = d3.scaleOrdinal().domain(data).range([
+      "#04CCCB",
+      "#F58451",
+      "#917EF5",
+      "#F1B949"
+    ])
+
+    var pie = d3.pie().value(function(d) {
+      return d.value;
+    })
+    var data_ready = pie(d3.entries(data))
+
+    svg
+      .selectAll('whatever')
+      .data(data_ready)
+      .enter()
+      .append('path')
+      .attr('d', d3.arc().innerRadius(0).outerRadius(radius))
+      .attr('fill', function(d) {
+        return(color(d.data.key))
+      })
+
+
+
+// Donut Chart
+    var width = 200
+    height = 160
+    margin = 10
+
+    var svg = d3
+      .select("#donut")
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+    var data = {
+      a: 9,
+      b: 20,
+      c: 30,
+      d: 8,
+      e: 12
+    }
+
+    var color = d3.scaleOrdinal().domain(data).range([
+      "#F1B949",
+      "rgb(252, 219, 144)",
+      "rgb(247, 153, 71)",
+      "rgb(232, 232, 185)",
+      "rgb(235, 235, 159)"
+    ])
+
+
+    var pie = d3.pie().value(function(d) {
+      return d.value;
+    })
+
+    var data_ready = pie(d3.entries(data))
+
+    svg
+      .selectAll('whatever')
+      .data(data_ready)
+      .enter()
+      .append('path')
+      .attr('d', d3.arc().innerRadius(58).outerRadius(78))
+      .attr('fill', function(d) {
+        return(color(d.data.key))
+      });
+  </script>
+
+{% endblock %}

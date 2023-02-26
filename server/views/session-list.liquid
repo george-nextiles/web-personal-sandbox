@@ -1,0 +1,35 @@
+{% comment %}  Keeping for reusable Code/ testing But not in use ! 
+
+{% layout 'layout.liquid' %}
+{% block content %}
+<div class="session__section">
+<h1 class="heading-secondary">{{ organization }}!</h1>
+<h2 class="heading-tertiary">Session View for {{ athlete }}</h2>
+<div class="organization__athletes">
+<h2>All your sessions!</h2>
+<span>
+* Add meta data*</span>
+<form
+method="POST"
+action="/analyzedsession"
+class="session__form">
+{% assign variable = 0 %}
+{% for date in dates %}
+<div class="session__group">
+<button
+type="submit"
+name="date"
+value="{{date}}">
+{{ date }}
+</button>
+<br/>
+<span>
+{{ sessions[variable] }} Sessions</span>
+{% assign variable = variable | plus: 1 %}
+</div>
+{% endfor %}
+</form>
+</div>
+</div>
+{% endblock %}
+{% endcomment %}

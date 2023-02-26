@@ -1,0 +1,55 @@
+{% layout "layout.liquid" %}
+{% block content %}
+  <div id="main" class="form">
+    <div class="form-header">
+      <img class="form__icon" src="./img/group.png" />
+      <h1 class="heading-primary u-margin-bottom-small">Account Login</h1>
+    </div>
+
+    <div class="form-content">
+      <div class="form-group">
+        <form method="POST" action="/login_route/">
+          <label for="organization">Organization</label>
+          <input
+            id="organization"
+            type="text"
+            name="org"
+            placeholder="Organization"
+            required="required" />
+        </div>
+
+        <div class="form-group">
+          <button
+            class="btn"
+            id="submit"
+            type="submit">Log In</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+  <script>// document.getElementById("submit").addEventListener("click", () => {
+// event.preventDefault()
+// const main_div = document.getElementById("main")
+// const organization = document.getElementById("organization").value;
+// console.log("ORG FRONT", organization)
+
+// async function fetchUsers() {
+//    const response = await fetch(`login_route/${organization}`);
+//    const json = await response.json();
+//    return json;
+// }
+
+// fetchUsers().then(json => {
+//    main_div.innerHTML = ""
+//    for (let i = 0; i < json.json.users.length; i++) {
+//      const pre = document.createElement("pre")
+//      let text = `${json.json.users[i]}`
+//      console.log(text)
+//      pre.append(text)
+//      main_div.appendChild(pre)
+//    }
+// });
+// });
+</script>{% endblock %}

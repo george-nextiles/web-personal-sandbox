@@ -1,0 +1,458 @@
+{% layout "layout.liquid" %}
+{% block content %}
+<div id="main " class="style">
+    <div class="btn-group" data-toggle="buttons-radio">
+        <button type="button" id="axayaz" class="btn active switch">AX</button>
+        <button type="button" id="gxgygz" class="btn switch">GX</button>
+        <button type="button" id="mxmymz" class="btn switch">MX</button>
+    </div>
+    <div id="linegraph">
+        <div id="legend">
+        </div>
+    </div>
+
+    <style>
+        text {
+            text-transform: capitalize;
+        }
+
+        .style {
+            margin: 1rem;
+            padding: 1rem;
+        }
+
+        .btn-group {
+            position: relative;
+            display: inline-block;
+            font-size: 0;
+            white-space: nowrap;
+            vertical-align: middle;
+            margin: 1rem;
+            padding: 1rem;
+        }
+
+        .btn-group>.btn:first-child {
+            margin-left: 0;
+            -webkit-border-bottom-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            -webkit-border-top-left-radius: 4px;
+            border-top-left-radius: 4px;
+            -moz-border-radius-bottomleft: 4px;
+            -moz-border-radius-topleft: 4px;
+        }
+
+        .btn-group>.btn:last-child,
+        .btn-group>.dropdown-toggle {
+            -webkit-border-top-right-radius: 4px;
+            border-top-right-radius: 4px;
+            -webkit-border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            -moz-border-radius-topright: 4px;
+            -moz-border-radius-bottomright: 4px;
+        }
+
+        .btn-group>.btn+.btn {
+            margin-left: -1px;
+        }
+
+        .btn-group>.btn,
+        .btn-group>.dropdown-menu {
+            font-size: 14px;
+        }
+
+        .btn-group>.btn {
+            position: relative;
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 0;
+        }
+
+        .btn.active,
+        .btn:active {
+            background-color: white;
+            background-image: none;
+            outline: 0;
+            -webkit-box-shadow: inset 0 2px 4px rgb(0 0 0 / 15%), 0 1px 2px rgb(0 0 0 / 5%);
+            -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 4px rgb(0 0 0 / 15%), 0 1px 2px rgb(0 0 0 / 5%);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 4px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            line-height: 20px;
+            color: #333;
+            text-align: center;
+            text-shadow: 0 1px 1px rgb(255 255 255 / 75%);
+            vertical-align: middle;
+            cursor: pointer;
+            background-color: white;
+            background-image: -moz-linear-gradient(top, #fff, #e6e6e6);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff), to(#e6e6e6));
+            background-image: -webkit-linear-gradient(top, #fff, #e6e6e6);
+            background-image: -o-linear-gradient(top, #fff, #e6e6e6);
+            background-image: linear-gradient(to bottom, #fff, #e6e6e6);
+            background-repeat: repeat-x;
+            border: 1px solid #bbb;
+            border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+            border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+            border-bottom-color: #a2a2a2;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), 0 1px 2px rgb(0 0 0 / 5%);
+            -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), 0 1px 2px rgb(0 0 0 / 5%);
+        }
+
+        #linegraph {
+            border-radius: .7rem;
+            padding: 3rem;
+            background-color: white;
+            box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%), 0 1px 2px rgb(0 0 0 / 5%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 55%;
+            height: 69rem;
+            overflow: hidden;
+        }
+    </style>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-axis.v1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+
+
+    <script>
+        // ********************************************************************************//
+        //                              Fetch Data Function                                //
+        // ********************************************************************************//
+        async function fetchCSV() {
+            const athlete = 'Basdeo05'
+            const org = 'Nextiles'
+            const start_range = "2022120900000"
+            const end_range = "2022121000000"
+            const response = await fetch(`/analyzedsession/${athlete}/${org}/${start_range}/${end_range}`);
+            const json = await response.json();
+            return json;
+        }
+
+        // ********************************************************************************//
+        //                                   Fetch Data                                    //
+        // ********************************************************************************//
+        window.onload = fetchCSV().then(json => {
+            var margin = { top: 10, right: 30, bottom: 30, left: 40 }
+            var width = 600, height = 800, duration = 750
+            let csv = json.csv_data[0]
+            const alldata = d3.csvParse(csv);
+
+            // d3's nest function that allows to group data by specified key 
+            var groupedData = d3.nest()
+                .key(function (d) { return d.field })
+                .entries(alldata);
+            // Create A group, G group and M group
+            // Hard coded for testing purposes
+            // **Refactor** 
+            let a = []
+            a.push(
+                { key: "ax", values: groupedData[0].values },
+                { key: "ay", values: groupedData[1].values },
+                { key: "az", values: groupedData[2].values },
+            )
+
+            let g = []
+            g.push(
+                { key: "gx", values: groupedData[3].values },
+                { key: "gy", values: groupedData[4].values },
+                { key: "gz", values: groupedData[5].values }
+            )
+
+            let m = []
+            m.push(
+                { key: "mx", values: groupedData[6].values },
+                { key: "my", values: groupedData[7].values },
+                { key: "mz", values: groupedData[8].values },
+            )
+
+            // D3 Functionality to build the graphs
+            var svg = d3.select("#linegraph")
+                .append("svg")
+                .attr("viewBox", "0 0 900 960")
+                .append("g")
+                .attr("transform",
+                    "translate(80,70)")
+
+            var x = d3.scaleLinear()
+                .domain(d3.extent(alldata, function (d) {
+                    return d.value;
+                }))
+                .range([0, width]);
+
+
+            // Create legend function 
+            function createLegend(data, color) {
+                var legendWidth = 50
+                var legendHeight = 125
+                var legend = d3.select("#legend").append("svg")
+                    .attr("width", legendWidth)
+                    .attr("height", legendHeight)
+
+                var legendG = legend.append("g")
+                    .attr("transform", "translate(10,0)")
+                    .attr("class", "panel")
+
+                legendG.append("rect")
+                    .attr("width", legendWidth)
+                    .attr("height", legendHeight)
+                    .attr("fill", "white")
+
+                var keys = legendG.selectAll("g")
+                    .data(data)
+                    .enter().append("g")
+                    .attr("transform", function (d, i) { return "translate(0," + i * 40 + ")" })
+
+                keys.append("rect")
+                    .attr("width", 20)
+                    .attr("height", 10)
+                    .attr("fill", function (d) {
+                        return color(d.key)
+                    })
+
+                keys.append("text")
+                    .text(function (d) {
+                        return d.key
+                    })
+                    .attr("text-anchor", "start")
+                    .attr("font-size", "1.4rem")
+                    .attr("fill", function (d) {
+                        return color(d.key)
+                    })
+                    .attr("dy", "2em")
+            }
+
+
+            // Function to draw ax ... data
+            let ax = function () {
+                // Converting the values into integers from strings
+                let avalues = []
+                a.forEach(function (d) {
+                    d.values.forEach(function (d) {
+                        avalues.push(+d.value);
+                    })
+                })
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(5));
+
+                var y = d3.scaleLinear()
+                    .domain(d3.extent(avalues))
+                    .range([height, 0]);
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                var res = a.map(function (d) {
+                    return d.key
+                })
+
+                var color = d3.scaleOrdinal()
+                    .domain(res)
+                    .range([
+                        "#F58451",
+                        '#EDEBA0',
+                        "#917EF5"
+                    ])
+
+                createLegend(a, color)
+
+                svg.selectAll(".line")
+                    .data(a)
+                    .enter()
+                    .append("path")
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", function (d) {
+                        return color(d.key)
+                    })
+                    .attr("stroke-width", 1.5)
+                    .attr("d", function (d) {
+                        return d3.line()
+                            .x((d, i) => { return x(i); })
+                            .y(function (d) {
+                                return y(d.value);
+                            })
+                            (d.values)
+                    })
+            }
+
+
+            // Function to draw gx ... data
+            let gx = function () {
+                // Converting the values into integers from strings
+                let gvalues = []
+                g.forEach(function (d) {
+                    d.values.forEach(function (d) {
+                        gvalues.push(+d.value);
+                    })
+                })
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(5));
+
+                var y = d3.scaleLinear()
+                    .domain(d3.extent(gvalues))
+                    .range([height, 0]);
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                var res = g.map(function (d) {
+                    return d.key
+                })
+
+                var color = d3.scaleOrdinal()
+                    .domain(res)
+                    .range([
+                        "#F58451",
+                        "#04CCCB",
+                        "#917EF5"
+                    ])
+
+                createLegend(g, color)
+
+                svg.selectAll(".line")
+                    .data(g)
+                    .enter()
+                    .append("path")
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", function (d) {
+                        return color(d.key)
+                    })
+                    .attr("stroke-width", 1.5)
+                    .attr("d", function (d) {
+                        return d3.line()
+                            .x((d, i) => { return x(i); })
+                            .y(function (d) {
+                                return y(+d.value);
+                            })
+                            (d.values)
+                    })
+
+                    .transition()
+                    .duration(duration)
+
+            }
+
+
+            // Function to draw mx ... data
+            let mx = function () {
+                // Converting the values into integers from strings
+                let mvalues = []
+                m.forEach(function (d) {
+                    d.values.forEach(function (d) {
+                        mvalues.push(+d.value);
+                    })
+                })
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(5));
+
+                var y = d3.scaleLinear()
+                    .domain(d3.extent(mvalues))
+                    .range([height, 0]);
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                var res = m.map(function (d) {
+                    return d.key
+                })
+
+                var color = d3.scaleOrdinal()
+                    .domain(res)
+                    .range([
+                        "#F58451",
+                        '#EDEBA0',
+                        "#917EF5"
+                    ])
+
+                createLegend(m, color)
+
+                svg.selectAll(".line")
+                    .data(m)
+                    .enter()
+                    .append("path")
+                    .attr("fill", "none")
+                    .attr("class", "line")
+                    .attr("stroke", function (d) {
+                        return color(d.key)
+                    })
+                    .attr("stroke-width", 1.5)
+                    .attr("d", function (d) {
+                        return d3.line()
+                            .x((d, i) => { return x(i); })
+                            .y(function (d) {
+                                return y(+d.value);
+                            })
+                            (d.values)
+                    })
+                    .transition()
+                    .duration(duration)
+            }
+
+
+            // Function to transition graph
+            function transitionTo(name) {
+                if (id == "axayaz") {
+                    let button = document.getElementById(id)
+                    button.className = "btn active switch"
+                    ax()
+                }
+                if (id == "gxgygz") {
+                    let button = document.getElementById(id)
+                    button.className = "btn active switch"
+                    gx()
+                }
+                if (id == "mxmymz") {
+                    let button = document.getElementById(id)
+                    button.className = "btn active switch"
+                    mx()
+                }
+            }
+
+
+            function clear() {
+                svg.selectAll(".line")
+                    .remove()
+                svg.selectAll("g")
+                    .remove()
+                d3.select("#legend")
+                    .selectAll("*").remove()
+            }
+
+
+            //Default View Called
+            ax()
+
+
+            // Select each button and change graph
+            d3.selectAll(".switch").on("click", function () {
+                d3.event.preventDefault();
+                clear()
+                id = d3.select(this).attr("id")
+                transitionTo(id)
+            });
+
+        });
+
+
+    </script>
+
+    {% endblock %}

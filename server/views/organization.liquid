@@ -1,0 +1,98 @@
+{% comment %}  Keeping for reusable Code/ testing But not in use ! 
+
+
+{% layout "layout.liquid" %}
+{% block content %}
+<div class="organization__group">
+<h1 class="heading-secondary">Welcome back {{ organization }}!</h1>
+<h3 class="heading-tertiary">Click on each athlete to see their session page!</h3>
+<div class="organization__athletes">
+<div class="container">
+
+<div class="col-1">
+<div class="btn-group">
+<span>Enter the amount of days you want to see active users</span>
+<form action="POST" action="/filter">
+<input
+type="text"
+name="date"
+placeholder="Date" />
+<input type="submit">
+</button>
+</form>
+</div>
+
+<a href="/" class="">All Users</a>
+<form
+method="POST"
+action="/sessions"
+class="organization__form">
+{% for athlete in athletes.users %}
+<div class="organization__group">
+<button
+type="submit"
+name="athlete"
+value="{{athlete}}">
+{{ athlete }}
+</button>
+<div class="session-number">
+<span># of sessions</span>
+</div>
+</div>
+{% endfor %}
+
+
+
+<div class="btn-group">
+<a href="/organization" class="">Users active within 7 days</a>
+</div>
+<form
+method="POST"
+action="/sessions"
+class="organization__form">
+{% for name in names %}
+<div class="organization__group">
+<button
+type="submit"
+name="athlete"
+value="{{name}}">
+{{ name }}
+</button>
+<div class="session-number">
+<span># of sessions</span>
+</div>
+</div>
+{% endfor %}
+</div>
+</form>
+
+<div class="btn-group">
+<a href="/organization" class="">Users active within 30 days</a>
+</div>
+<form
+method="POST"
+action="/sessions"
+class="organization__form">
+{% for athlete in thirty_day_names %}
+<div class="organization__group">
+<button
+type="submit"
+name="athlete"
+value="{{athlete}}">
+{{ athlete }}
+</button>
+<div class="session-number">
+<span># of sessions</span>
+</div>
+</div>
+{% endfor %}
+</div>
+</form>
+</div>
+
+
+
+</div>
+</div>
+{% endblock %}
+{% endcomment %}

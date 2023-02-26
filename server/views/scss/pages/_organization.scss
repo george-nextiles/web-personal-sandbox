@@ -1,0 +1,55 @@
+.organization {
+    &__group {
+        z-index: 15;
+        width: 90%;
+        border-radius: .4rem;
+        box-sizing: border-box;
+        background-color: #e4e4e4;
+        margin: 2rem auto;
+        word-wrap: break-word;
+        text-align: center;
+        box-shadow: 0 1.5rem 4rem rgba($color-black, .15);
+        padding: 3rem;
+        margin: 1rem 1rem;
+    }
+
+    &__athletes {
+        margin: 2rem auto;
+        padding: .3rem;
+
+        form, input, a {
+            background-color: #e4e4e4;
+            font-family: Montserrat;
+            font-weight: 400;
+            line-height: 1.7;
+            color: black;
+            cursor: pointer;
+        }
+    }
+}
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.col-1 {
+    width: 60%;
+}
+
+// .col-2{
+//     align-self: flex-start;
+//     width: 28%
+// }
+// .col-3{
+//     align-self: flex-start;
+//     width: 28%
+// }
+
+
+

@@ -1,0 +1,142 @@
+{% layout "layout.liquid" %}
+{% block content %}
+<div class="style">
+    <div id="linegraph">
+        <div id="label"></div>
+    </div>
+</div>
+
+<style>
+    .style {
+        display: flex;
+        flex-direction: row;
+        margin: 1rem;
+        padding: 1rem;
+        justify-content: space-evenly;
+    }
+
+    #linegraph {
+        border-radius: .7rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        background-color: white;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-axis.v1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+
+<script>
+    // ********************************************************************************//
+    //                              Fetch Data Function                                //
+    // ********************************************************************************//
+    async function fetchCSV() {
+        const athlete = 'Basdeo05'
+        const org = 'Nextiles'
+        const start_range = "2022120900000"
+        const end_range = "2022121000000"
+        const response = await fetch(`/analyzedsession/${athlete}/${org}/${start_range}/${end_range}`);
+        const json = await response.json();
+        return json;
+    }
+
+    // ********************************************************************************//
+    //                                   Fetch Data                                    //
+    // ********************************************************************************//
+    window.onload = fetchCSV().then(json => {
+        let csv = json.csv_data[0]
+        const alldata = d3.csvParse(csv);
+
+
+        var margin = { top: 30, right: 30, bottom: 30, left: 40 },
+            width = 700 - margin.left - margin.right,
+            height = 700 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#linegraph")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+
+        var groupedData = d3.nest()
+            .key(function (d) { return d.field; })
+            .entries(alldata);
+
+        var x = d3.scaleLinear()
+            .domain(d3.extent(alldata, function (d) {
+                return d.value;
+            }))
+            .range([0, width]);
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).ticks(5));
+
+
+        var y = d3.scaleLinear()
+            .domain([d3.min(alldata, function (d) { return +d.value }), d3.max(alldata, function (d) {
+                return +d.value;
+            })])
+            .range([height, 0]);
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+
+        var res = groupedData.map(function (d) {
+            return d.key
+        })
+
+        var color = d3.scaleOrdinal()
+            .domain(res)
+            .range([
+                '#EDEBA0',
+                '#f781bf',
+                "#917EF5",
+                "#04CCCB",
+                "#F58451",
+                "#FFC09F",
+                "#79ADDC",
+                "#F1B949"])
+
+        svg.selectAll(".line")
+            .data(groupedData)
+            .enter()
+            .append("path")
+            .attr("fill", "none")
+            .attr("stroke", function (d) {
+                return color(d.key)
+            })
+            .attr("stroke-width", 1.7)
+            .attr("d", function (d) {
+                return d3.line()
+                    .x((d, i) => { return x(i); })
+                    .y(function (d) {
+                        return y(+d.value);
+                    })
+                    (d.values)
+            })
+
+        var legend = d3.legendColor()
+            .scale(color)
+            .shapeWidth(20)
+            .orient("vertical")
+
+
+        let label = d3.select("#label")
+            .append("svg")
+            .attr("width", 200)
+            .attr("height", 280)
+            .append("g")
+            .attr("transform", "translate(20,20)")
+            .call(legend);
+
+
+    });
+</script>
+
+{% endblock %}

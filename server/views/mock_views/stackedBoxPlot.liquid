@@ -1,0 +1,237 @@
+{% layout "layout.liquid" %}
+{% block content %}
+<div id="boxPlot"></div>
+<style>
+    .myYaxis {
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    .myXaxis {
+        font-size: 1.1rem;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    #boxPlot {
+        background-color: white;
+        border-radius: .4rem;
+        margin: 3rem;
+        width: 40%;
+    }
+
+    .tooltip {
+        position: absolute;
+    }
+</style>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script>
+
+    var margin = { top: 10, right: 30, bottom: 30, left: 40 },
+        width = 400 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    var svg = d3.select("#boxPlot")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+
+    var jump_data = [12, 19, 11, 13, 12, 22, 13, 4, 15, 16, 18, 19, 20, 12, 11, 9]
+    var throw_data = [20, 40, 33, 19, 54, 39, 33, 28, 47, 22, 39, 23, 37]
+
+
+    // Notes for myself: 
+    // First sort data in ascending order
+    var jump_sorted = jump_data.sort(d3.ascending)
+    var throw_sorted = throw_data.sort(d3.ascending)
+
+
+    // calculate the firsr quarter median and third quarter - first and third are 
+    // stopping point for the inner rectangle 
+    // Jump
+    var jumpq1 = d3.quantile(jump_sorted, .25)
+    var jumpmedian = d3.quantile(jump_sorted, .5)
+    var jumpq3 = d3.quantile(jump_sorted, .75)
+
+    // Throw
+    var throwq1 = d3.quantile(throw_sorted, .25)
+    var throwmedian = d3.quantile(throw_sorted, .5)
+    var throwq3 = d3.quantile(throw_sorted, .75)
+
+    //Notes on Box Plots- 
+    //Smallest value (sample minimum) using the min or _min field name.
+    //Lowest quartile (25%) using the _pct_25 field name. 
+    //You can use both lower or ends with in this part of the query.
+    //Median quartile (50%) using the _pct_50 field name. 
+    //You can use both lower or ends with in this part of the query.
+    //Upper quartile (75%) using the _pct_75 field name.
+    //Largest value (sample maximum) using the max or _max field name.
+
+    // Link to a good article - 
+    //https://muse.union.edu/dvorakt/what-drives-the-length-of-whiskers-in-a-box-plot/#:~:text=The%20box%20in%20the%20box,%2B%201.5*6%20%3D%2019.
+    // Calculate the range between the first end point and second 
+    // Calculate the lines that will mark the minimum and max
+    //Jump
+    var jumpinterQuantileRange = jumpq3 - jumpq1
+    console.log(jumpinterQuantileRange)
+    var jumpmin = jumpq1 - 1.5 * jumpinterQuantileRange
+    console.log(jumpmin)
+    var jumpmax = jumpq1 + 1.5 * jumpinterQuantileRange
+    console.log(jumpmax)
+    //Throw
+    var throwinterQuantileRange = throwq3 - throwq1
+    var throwmin = throwq1 - 1.5 * throwinterQuantileRange
+    var throwmax = throwq1 + 1.5 * throwinterQuantileRange
+
+
+    var x = d3.scaleBand()
+        .range([0, width])
+        .domain(["Jumps", "Throws"])
+        .paddingInner(1)
+        .paddingOuter(.5)
+
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .attr("class", "myXaxis")
+        .call(d3.axisBottom(x))
+
+    var y = d3.scaleLinear()
+        .domain([-5, 80])
+        .range([height, 0])
+    svg.append("g").call(d3.axisLeft(y))
+        .attr("class", "myYaxis")
+
+
+
+    var tooltip = d3.select("#boxPlot")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", ".1rem")
+        .style("border-radius", ".5rem")
+        .style("padding", "1rem")
+
+
+
+    var center = 83
+    var width = 100
+
+    svg
+        .append("line")
+        .attr("x1", center)
+        .attr("x2", center)
+        .attr("y1", y(jumpmin))
+        .attr("y2", y(jumpmax))
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+    svg
+        .append("rect")
+
+        .attr("x", center - width / 2)
+        .attr("y", y(jumpq3))
+        .attr("height", (y(jumpq1) - y(jumpq3)))
+        .attr("width", width)
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+        .style("fill", "#917EF5")
+
+
+
+    svg
+        .selectAll("toto")
+        .data([jumpmin, jumpmedian, jumpmax])
+        .enter()
+        .append("line")
+        .attr("x1", center - width / 2)
+        .attr("x2", center + width / 2)
+        .attr("y1", function (d) { return (y(d)) })
+        .attr("y2", function (d) { return (y(d)) })
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+        .on('mouseover', function (d, i) {
+            console.log(d)
+            d3.select(this).transition()
+                .duration('100')
+                .attr("r", 15);
+
+            tooltip.transition()
+                .duration(100)
+                .style("opacity", 1);
+            tooltip.html(d)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 15) + "px");
+        })
+        .on("mouseout", function (d, i) {
+            console.log(d)
+            d3.select(this).transition()
+                .duration("1000")
+                .attr("r", 15)
+                .attr("stroke", "black")
+            tooltip.transition()
+                .duration('200')
+                .style("opacity", 0);
+        })
+
+
+    // Append Throws
+    svg
+        .append("line")
+        .attr("x1", 248)
+        .attr("x2", 248)
+        .attr("y1", y(throwmin))
+        .attr("y2", y(throwmax))
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+    svg
+        .append("rect")
+        .attr("x", 248 - width / 2)
+        .attr("y", y(throwq3))
+        .attr("height", (y(throwq1) - y(throwq3)))
+        .attr("width", width)
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+        .style("fill", "#04CCCB")
+
+
+    svg
+        .selectAll("toto")
+        .data([throwmin, throwmedian, throwmax])
+        .enter()
+        .append("line")
+        .attr("x1", 248 - width / 2)
+        .attr("x2", 248 + width / 2)
+        .attr("y1", function (d) { return (y(d)) })
+        .attr("y2", function (d) { return (y(d)) })
+        .attr("stroke", "black")
+        .style("stroke-width", 2)
+        .on('mouseover', function (d, i) {
+            console.log(d)
+            d3.select(this).transition()
+                .duration('100')
+                .attr("r", 10)
+                .attr("stroke", "#04CCCB")
+            tooltip.transition()
+                .duration(100)
+                .style("opacity", 1);
+            tooltip.html(d)
+                .style("left", (d3.event.pageX + 10) + "px")
+                .style("top", (d3.event.pageY - 15) + "px");
+        })
+        .on("mouseout", function (d, i) {
+            console.log(d)
+            d3.select(this).transition()
+                .duration("200")
+                .attr("r", 10)
+                .attr("stroke", "black")
+            tooltip.transition()
+                .duration('200')
+                .style("opacity", 0);
+        })
+</script>
+
+{% endblock %}

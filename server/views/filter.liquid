@@ -1,0 +1,65 @@
+{% comment %}  Keeping for reusable Code But not in use ! {% endcomment %}
+
+
+{% comment %} 
+{% layout "layout.liquid" %}
+{% block content %}
+<div class="form">
+<div class="form-panel">
+<div class="form-header">
+<img class="form__icon" src="./img/group.png" />
+<h1 class="heading-primary u-margin-bottom-small">Filter Your Sessions</h1>
+</div>
+<div class="form-content">
+<form>
+<div class="form-group">
+<label for="filter-one">Username</label>
+<select
+name="filter-one"
+class="form__select"
+id="dates">
+<option value="start_range">Date One</option>
+<option value="date two">Date Two</option>
+<option value="date three">Date Three</option>
+</select>
+</div>
+
+<div class="form-group ">
+<label for="filter-two">Start Range</label>
+<select
+name="filter-two"
+class="form__select"
+id="session-type">
+<option value="run">Running</option>
+<option value="tennis-serve">Tennis Serve</option>
+<option value="tennis-swing">Tennis Swing</option>
+<option value="jump">Jump</option>
+<option value="baseball-pitch">Baseball Pitch</option>
+<option value="basketball-shot">Basketball Shot</option>
+</select>
+</div>
+
+<div class="form-group u-margin-bottom-medium">
+<label for="filter-three">End Range</label>
+<select
+name="filter-two"
+class="form__select"
+id="athletes">
+<option value="athlete-one">Name One</option>
+<option value="athlete-two">Name Two</option>
+<option value="athlete-three">Name Thre</option>
+<option value="athlete-four">Name Four</option>
+<option value="athlete-five">Name Five</option>
+<option value="athlete-six">Name Six</option>
+</select>
+</div>
+
+<div class="form-group">
+<button class="btn" type="submit">Filter Now!</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+{% endblock %}
+{% endcomment %}

@@ -1,0 +1,136 @@
+{% layout "layout.liquid" %}
+{% block content %}
+<div id="barChart"></div>
+<style>
+    .myYaxis {
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    .myXaxis {
+        font-size: 1.1rem;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    #barChart {
+        background-color: white;
+        border-radius: .4rem;
+        margin: 3rem;
+        width: 50%;
+    }
+
+    .tooltip {
+        position: absolute;
+    }
+</style>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script>
+    var margin = { top: 10, right: 30, bottom: 20, left: 50 },
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    var svg = d3.select("#barChart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    data = [
+        { day: "Monday", Jump: 20, Throw: 40, Run: 20 },
+        { day: "Tuesday", Jump: 2, Throw: 35, Run: 10 },
+        { day: "Wednesday", Jump: 33, Throw: 15, Run: 2 },
+        { day: "Thursday", Jump: 33, Throw: 20, Run: 9 },
+        { day: "Friday", Jump: 22, Throw: 5, Run: 30 }
+    ]
+    console.log(data)
+    var subgroups = Object.keys(data[0]).slice(1)
+
+    var groups = d3.map(data, function (d) {
+        console.log(d.day)
+        return (d.day)
+    }).keys()
+
+
+    var x = d3.scaleBand()
+        .domain(groups)
+        .range([0, width])
+        .padding([0.2])
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).tickSizeOuter(0));
+
+    var y = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    var color = d3.scaleOrdinal()
+        .domain(subgroups)
+        .range(["#04CCCB",
+            "#F58451",
+            "#917EF5",
+            "#F1B949"])
+
+    var stackedData = d3.stack()
+        .keys(subgroups)
+        (data)
+    console.log("Stacked", stackedData)
+
+    var tooltip = d3.select("#barChart")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", ".1rem")
+        .style("border-radius", ".5rem")
+        .style("padding", "1rem")
+
+    var mouseover = function (d) {
+        var subgroupName = d3.select(this.parentNode).datum().key;
+        var subgroupValue = d.data[subgroupName];
+        tooltip
+            .html("Activity: " + subgroupName + "<br>" + "Minutes Active: " + subgroupValue)
+            .style("opacity", 1)
+    }
+
+    var mousemove = function (d) {
+        tooltip
+            .style("left", (d3.mouse(this)[0] + 90) + "px")
+            .style("top", (d3.mouse(this)[1]) + "px")
+    }
+
+    var mouseleave = function (d) {
+        tooltip
+            .style("opacity", 0)
+    }
+
+
+    svg.append("g")
+        .selectAll("g")
+        .data(stackedData)
+        .enter().append("g")
+        .attr("fill", function (d) { return color(d.key); })
+        .selectAll("rect")
+        .data(function (d) {
+            console.log(d)
+            return d;
+        })
+        .enter().append("rect")
+        .attr("x", function (d) {
+            console.log(d.data)
+            return x(d.data.day);
+        })
+        .attr("y", function (d) { return y(d[1]); })
+        .attr("height", function (d) { return y(d[0]) - y(d[1]); })
+        .attr("width", x.bandwidth())
+        .attr("stroke", "grey")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+
+</script>
+
+{% endblock %}
